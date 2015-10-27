@@ -1,0 +1,21 @@
+{
+  "name": "big-l",
+  "version": "1.0.0",
+  "description": "a parametric l-system with emoji support",
+  "main": "bot.js",
+  "dependencies": {
+    "canvas": "^1.2.11",
+    "lodash": "^3.10.1",
+    "random-seed": "^0.2.0"
+  },
+  "devDependencies": {
+    "chai": "^3.4.0",
+    "emojilib": "^1.0.1",
+    "mocha": "^2.3.3"
+  },
+  "scripts": {
+    "test": "mocha -R spec"
+  },
+  "author": "Beau Gunderson <beau@beaugunderson.com>",
+  "license": "MIT"
+}
