@@ -4,6 +4,7 @@ var fs = require('fs');
 var Canvas = require('canvas');
 var parser = require('./parser.js');
 var random = require('random-seed');
+var requireDirectory = require('require-directory');
 var _ = require('lodash');
 
 // function text(curve) {
@@ -32,240 +33,150 @@ function expandCurve(initial, rules, maxLength) {
     curve = _.flatten(curve.map(expand));
 
     if (last.length === curve.length) {
-      console.log('error: curve is not growing');
-      process.exit(1);
+      console.log('warning: curve is not growing');
+
+      break;
     }
   }
 
   return last;
 }
 
-function radians(angle) {
-  return Math.PI * angle / 180;
-}
+var seed = _.random(true);
 
-var seed = _.random();
+var commands = {};
 
-function render(curve, maxLength, width, height, ctx, draw, xOffset, yOffset, distance, modifier) {
-  var seededRandom = random.create(seed);
+requireDirectory(module, './commands/', {
+  visit: function (command) {
+    command.letters.forEach(function (letter) {
+      commands[letter] = command;
+    });
+  }
+});
 
+function render(curve, maxLength, width, height, ctx, draw, xOffset, yOffset, scale) {
   var stack = [];
 
-  var heading = curve.rules.heading || 90.0;
+  var state = {
+    x: 0.0,
+    y: 0.0,
+    heading: curve.rules.heading || 90.0,
+    width: width,
+    height: height,
+    xOffset: xOffset || 0,
+    yOffset: yOffset || 0,
+    seed: seed,
+    angle: curve.rules.α || curve.rules['📐'] || 60,
+    angleChaos: curve.rules['🍥'] || 0,
+    distanceChaos: curve.rules['〰️'] || 0,
+    scale: scale || 1,
+    random: random.create(seed)
+  };
 
-  var angle = curve.rules.α || curve.rules['📐'] || 60;
-  var angleChaos = curve.rules['🍥'] || 0;
+  var previousState;
 
-  // TODO: specify via rule
-  distance = distance || 10;
-  var distanceChaos = curve.rules['〰️'] || 0;
-
-  modifier = modifier || 1;
-
-  xOffset = xOffset || 0;
-  yOffset = yOffset || 0;
-
-  console.log('render params', angle, distance, xOffset, yOffset, modifier);
-
-  maxLength = maxLength || seededRandom.intBetween(5000, 500000);
-
-  var minx = Infinity;
-  var miny = Infinity;
-  var maxx = -Infinity;
-  var maxy = -Infinity;
-
-  var lastX;
-  var lastY;
+  var bounds = {
+    minX: Infinity,
+    minY: Infinity,
+    maxX: -Infinity,
+    maxY: -Infinity
+  };
 
   if (draw) {
-    // clear the background
     // ctx.save();
 
+    // clear the background
     ctx.fillStyle = 'rgb(200, 200, 200)';
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, state.width, state.height);
 
     // offset as required
-    ctx.translate(xOffset, 0);
+    ctx.translate(state.xOffset, 0);
 
     // initial colour if specific colouring not used
     ctx.strokeStyle = 'rgb(0, 0, 0)';
   }
 
-  // start at grid 0,0 facing north with no colour index
-  var pos = {x: 0.0, y: 0.0, heading: heading};
-
   function updateBounds() {
-    if (pos.x < minx) {
-      minx = pos.x;
-    } else if (pos.x > maxx) {
-      maxx = pos.x;
+    if (state.x < bounds.minX) {
+      bounds.minX = state.x;
+    } else if (state.x > bounds.maxX) {
+      bounds.maxX = state.x;
     }
 
-    if (pos.y < miny) {
-      miny = pos.y;
-    } else if (pos.y > maxy) {
-      maxy = pos.y;
+    if (state.y < bounds.minY) {
+      bounds.minY = state.y;
+    } else if (state.y > bounds.maxY) {
+      bounds.maxY = state.y;
     }
   }
 
   // catch the initial position
   updateBounds();
 
-  function updateLast() {
-    lastX = pos.x;
-    lastY = pos.y;
-  }
-
-  function move(dist) {
-    dist = dist || distance;
-    dist += seededRandom.floatBetween(dist * distanceChaos * -1.0,
-                                      dist * distanceChaos);
-
-    // move the turtle
-    var rad = radians(pos.heading);
-
-    pos.x += dist * Math.cos(rad);
-    pos.y += dist * Math.sin(rad);
-
-    updateBounds();
-  }
-
-  function drawPath() {
-    ctx.lineWidth = 5;
-
-    ctx.beginPath();
-
-    ctx.moveTo(lastX, height - (lastY + yOffset));
-    ctx.lineTo(pos.x, height - (pos.y + yOffset));
-
-    // unneeded, draws the reverse of the path and makes lineCap not work
-    // ctx.closePath();
-
-    ctx.stroke();
-  }
-
-  function drawCircle() {
-    ctx.arc(pos.x, height - (pos.y + yOffset), distance / 3, 0, 2 * Math.PI,
-            false);
-
-    ctx.stroke();
-  }
-
-  function movePath() {
-    ctx.moveTo(pos.x, height - (pos.y + yOffset));
-  }
-
-  var step;
-
   _.each(curve.expanded, function (command) {
-    switch (command.command) {
-    case '+':
-      pos.heading += angle + seededRandom.floatBetween(angle * angleChaos * -1.0,
-                                                       angle * angleChaos);
-      break;
+    previousState = _.cloneDeep(state);
 
-    case '-':
-      pos.heading -= angle + seededRandom.floatBetween(angle * angleChaos * -1.0,
-                                                       angle * angleChaos);
-      break;
-
-    case '[':
-      stack.push(_.cloneDeep(pos));
-      break;
-
-    case ']':
-      pos = stack.pop();
-      break;
-
-    case 'F':
-    case '→':
-      updateLast();
-
-      step = distance;
-
-      if (command.args.length) {
-        step = command.args[0] * modifier;
+    if (commands[command.command]) {
+      // TODO: apply command.args
+      if (commands[command.command].apply) {
+        commands[command.command].apply(state, previousState, command.args[0]);
       }
 
-      move(step);
+      updateBounds();
 
-      if (draw) {
-        drawPath();
+      if (draw && commands[command.command].draw) {
+        // TODO: apply command.args
+        commands[command.command].draw(state, previousState, ctx, command.args[0]);
       }
+    } else {
+      switch (command.command) {
+      // TODO: have to store these elsewhere, maybe it's OK that they're here?
+      case '[':
+        stack.push(_.cloneDeep(state));
+        break;
 
-      break;
+      case ']':
+        state = stack.pop();
+        break;
 
-    case 'm':
-      if (draw) {
-        if (command.args.length) {
-          ctx.strokeStyle = 'hsl(0, 100%, ' + (command.args * 10) + '%)';
-        } else {
-          ctx.strokeStyle = 'hsl(0, 100%, 50%)';
+      case 'm':
+        if (draw) {
+          if (command.args.length) {
+            ctx.strokeStyle = 'hsl(0, 100%, ' + (command.args * 10) + '%)';
+          } else {
+            ctx.strokeStyle = 'hsl(0, 100%, 50%)';
+          }
         }
+
+        break;
+
+      default:
+        break;
       }
-
-      break;
-
-    case 'R':
-      step = angle;
-
-      if (command.args.length) {
-        step = command.args[0];
-      }
-
-      pos.heading += step + seededRandom.floatBetween(step * angleChaos * -1.0,
-                                                      step * angleChaos);
-
-      break;
-
-    case 'c':
-      updateLast();
-      move();
-
-      if (draw) {
-        drawCircle();
-      }
-
-      break;
-
-    case 'f':
-      updateLast();
-      move();
-
-      if (draw) {
-        movePath();
-      }
-
-      break;
-
-    default:
-      break;
     }
   });
 
-  // finalise rendering
   if (draw) {
-    ctx.strokeStyle = 'red';
+    // draw the debug outline
+    // ctx.strokeStyle = 'red';
 
-    ctx.beginPath();
+    // ctx.beginPath();
 
-    ctx.moveTo(minx, miny + yOffset);
-    ctx.lineTo(minx, maxy + yOffset);
-    ctx.lineTo(maxx, maxy + yOffset);
-    ctx.lineTo(maxx, miny + yOffset);
+    // ctx.moveTo(bounds.minX, bounds.minY + state.yOffset);
+    // ctx.lineTo(bounds.minX, bounds.maxY + state.yOffset);
+    // ctx.lineTo(bounds.maxX, bounds.maxY + state.yOffset);
+    // ctx.lineTo(bounds.maxX, bounds.minY + state.yOffset);
 
-    ctx.closePath();
+    // ctx.closePath();
 
-    ctx.stroke();
+    // ctx.stroke();
 
+    // finalise rendering
     ctx.restore();
   }
 
   return {
-    minx: minx,
-    miny: miny,
-    maxx: maxx,
-    maxy: maxy
+    bounds: bounds
   };
 }
 
@@ -277,10 +188,13 @@ function render(curve, maxLength, width, height, ctx, draw, xOffset, yOffset, di
 // var curve = 'FX; X=X+YF+; Y=-FX-Y; α=90';
 // var curve = 'F-F-F-F; F=F-F+F+FF-F-F+F; α=90';
 
-// var curve = 'A;' +
-//   'A=m2 →5 A →16 c [B R15];' +
-//   'B=m5 R32.2 →10 [c [A →1 R2] →2,3] [R3 →1.5 C];' +
-//   'C=m8 →5 B [A]';
+var curve = 'A;' +
+  'A=m2 →5 A →16 c [B R15];' +
+  'B=m5 R32.2 →10 [c [A →1 R2] →2,3] [R3 →1.5 C];' +
+  'C=m8 →5 B [A];' +
+  '〰️=0.8; 🍥=0.6';
+
+// var curve = 'X X X X; X=F C R90;';
 
 // var curve = 'X; X=F-[[X]+X]+F[+FX]-X; F=FF; α=25';
 
@@ -290,7 +204,7 @@ function render(curve, maxLength, width, height, ctx, draw, xOffset, yOffset, di
 
 // var curve = 'F; F=F + + B F - F + F; B=+ F [F - F [- F + F]]';
 
-var curve = 'F; F=F[+ + F[- F]]F[-FF[F]]; 📐=12; 〰️=0.8; 🍥=0.6';
+// var curve = 'F; F=m1 F[+ + F m7[- F]]F[-FF[F]]; 📐=12; 〰️=0.8; 🍥=0.6';
 
 console.log('curve', curve);
 
@@ -319,68 +233,54 @@ parsed.expanded = expandCurve(parsed.initial, parsed.rules, MAX_LENGTH);
 console.log('path length', parsed.expanded.length);
 
 // first render, for scale
-var dim = render(parsed, MAX_LENGTH, WIDTH, HEIGHT, null, false);
+var result = render(parsed, MAX_LENGTH, WIDTH, HEIGHT, null, false);
 
-var deltaX = dim.maxx - dim.minx;
-var deltaY = dim.maxy - dim.miny;
+var renderWidth = result.bounds.maxX - result.bounds.minX;
+var renderHeight = result.bounds.maxY - result.bounds.minY;
 
 // add padding
-dim.minx -= deltaX * 0.1;
-dim.miny -= deltaY * 0.1;
+result.bounds.minX -= renderWidth * 0.1;
+result.bounds.minY -= renderHeight * 0.1;
 
-dim.maxx += deltaX * 0.1;
-dim.maxy += deltaY * 0.1;
+result.bounds.maxX += renderWidth * 0.1;
+result.bounds.maxY += renderHeight * 0.1;
 
-deltaX = dim.maxx - dim.minx;
-deltaY = dim.maxy - dim.miny;
+renderWidth = result.bounds.maxX - result.bounds.minX;
+renderHeight = result.bounds.maxY - result.bounds.minY;
 
-console.log('dim', dim);
+console.log('result', result);
 
-var oldDistance = 10.0;
 var scale;
 
-console.log('delta x, y', deltaX, deltaY);
+console.log('delta x, y', renderWidth, renderHeight);
 
-if (deltaX / deltaY > WIDTH / HEIGHT) {
-  scale = WIDTH / deltaX;
+if (renderWidth / renderHeight > WIDTH / HEIGHT) {
+  scale = WIDTH / renderWidth;
 } else {
-  scale = HEIGHT / deltaY;
+  scale = HEIGHT / renderHeight;
 }
 
-var newDistance = scale * oldDistance;
-
 console.log('scale', scale);
-console.log('old, new distance', oldDistance, newDistance);
 
-dim.minx *= scale;
-dim.miny *= scale;
-dim.maxx *= scale;
-dim.maxy *= scale;
+result.bounds.minX *= scale;
+result.bounds.minY *= scale;
+result.bounds.maxX *= scale;
+result.bounds.maxY *= scale;
 
-deltaX = dim.maxx - dim.minx;
-deltaY = dim.maxy - dim.miny;
+renderWidth = result.bounds.maxX - result.bounds.minX;
+renderHeight = result.bounds.maxY - result.bounds.minY;
 
-console.log('delta x, y', deltaX, deltaY);
-
-// second render, for translation
-dim = render(parsed, MAX_LENGTH, WIDTH, HEIGHT, null, false, 0, 0, newDistance, scale);
-
-console.log('dim2', dim);
-
-deltaX = dim.maxx - dim.minx;
-deltaY = dim.maxy - dim.miny;
-
-console.log('delta x, y', deltaX, deltaY);
+console.log('delta x, y', renderWidth, renderHeight);
 
 var CENTER_X = WIDTH / 2;
 var CENTER_Y = HEIGHT / 2;
 
-var xoffset = CENTER_X - ((deltaX / 2) + dim.minx);
-var yoffset = CENTER_Y - ((deltaY / 2) + dim.miny);
+var xOffset = CENTER_X - ((renderWidth / 2) + result.bounds.minX);
+var yOffset = CENTER_Y - ((renderHeight / 2) + result.bounds.minY);
 
-console.log('x, y offset', xoffset, yoffset);
+console.log('x, y offset', xOffset, yOffset);
 
-dim = render(parsed, MAX_LENGTH, WIDTH, HEIGHT, ctx, true, xoffset, yoffset, newDistance, scale);
+result = render(parsed, MAX_LENGTH, WIDTH, HEIGHT, ctx, true, xOffset, yOffset, scale);
 
 canvas.toBuffer(function (err, buffer) {
   if (err) {
