@@ -1,4 +1,4 @@
-exports.letters = ['R'];
+exports.letters = ['r'];
 
 var defaults = exports.defaults = {
   rotationAngle: 10

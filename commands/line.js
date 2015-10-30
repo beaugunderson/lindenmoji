@@ -22,7 +22,7 @@ exports.apply = function lineMove(state, previousState, distance) {
 };
 
 exports.draw = function lineDraw(state, previousState, ctx) {
-  ctx.lineWidth = 5;
+  ctx.lineWidth = 7;
 
   ctx.beginPath();
 
