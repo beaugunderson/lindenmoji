@@ -28,11 +28,11 @@ Rule
 
     return rule;
   }
-  / symbol:CommandSymbol '=' number:Number ';'?
+  / symbol:CommandSymbol '=' arguments:Argument+ ';'?
   {
     var rule = {};
 
-    rule[symbol] = number;
+    rule[symbol] = arguments;
 
     return rule;
   }

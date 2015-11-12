@@ -74,7 +74,7 @@ module.exports = function () {
   console.log('chosen settings:', consoleFormat(chosenSettings.join('')));
 
   chosenSettings = chosenSettings.map(function (symbol) {
-    return symbol + getArgument(symbol);
+    return symbol + '=' + getArgument(symbol);
   });
 
   console.log('chosen settings:', consoleFormat(chosenSettings.join('')));
@@ -154,13 +154,9 @@ module.exports = function () {
   var curve = [
     start,
     rules,
+    chosenSettings.join('; '),
     '📐=' + angle
   ];
-
-  // TODO: switch to alternate settings format
-  if (chosenSettings) {
-    curve.push('⚙=' + chosenSettings);
-  }
 
   return curve.join('; ');
 };

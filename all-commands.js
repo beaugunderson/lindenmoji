@@ -13,17 +13,20 @@ module.exports = {
 
 requireDirectory(module, './commands/', {
   visit: function (command) {
-    var symbol = command.symbols[0];
+    var emojiSymbol = command.symbols[0];
 
     module.exports.tags = _.uniq(module.exports.tags.concat(command.tags));
     module.exports.controlSymbols = module.exports.controlSymbols
       .concat(command.symbols);
-    module.exports.emojiSymbols.push(symbol);
-    module.exports.commands[symbol] = command;
+    module.exports.emojiSymbols.push(emojiSymbol);
+
+    command.symbols.forEach(function (symbol) {
+      module.exports.commands[symbol] = command;
+    });
 
     command.tags.forEach(function (tag) {
       module.exports.symbolsByTag[tag] =
-        (module.exports.symbolsByTag[tag] || []).concat(symbol);
+        (module.exports.symbolsByTag[tag] || []).concat(emojiSymbol);
     });
   }
 });

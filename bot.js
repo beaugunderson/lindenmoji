@@ -81,9 +81,9 @@ function render(curve, settings, maxLength, width, height, ctx, draw, xOffset,
     ctx.fillRect(0, 0, state.width, state.height);
 
     if (settings) {
-      settings.forEach(function (setting) {
-        if (system.commands[setting.command].draw) {
-          system.commands[setting.command].draw(state, ctx, setting.args[0]);
+      _.each(settings, function (args, symbol) {
+        if (system.commands[symbol].draw) {
+          system.commands[symbol].draw(state, ctx, args[0]);
         }
       });
     }
@@ -183,14 +183,15 @@ module.exports = function doCurve(curve, filename, cb) {
   curve = curve.replace(/\s/g, '');
 
   var parsed = parser.parse(curve);
-  var settings;
+  var settings = {};
 
-  // TODO: switch to 🌇=1 format instead? requires loading commands here
-  if (parsed.rules['⚙']) {
-    settings = parsed.rules['⚙'];
+  _.each(parsed.rules, function (rule, symbol) {
+    if (_.contains(system.symbolsByTag.setting, symbol)) {
+      settings[symbol] = rule;
 
-    delete parsed.rules['⚙'];
-  }
+      delete parsed.rules[symbol];
+    }
+  });
 
   // process each command in turn
   parsed.expanded = expandCurve(parsed.initial, parsed.rules, MAX_LENGTH);
