@@ -1,3 +1,5 @@
+'use strict';
+
 var emojis = require('emojilib');
 var parser = require('../parser.js');
 var _ = require('lodash');

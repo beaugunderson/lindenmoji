@@ -1,4 +1,8 @@
-exports.letters = ['F', '→'];
+'use strict';
+
+exports.arguments = ['number'];
+exports.symbols = ['➡️', 'F', '→'];
+exports.tags = ['drawing', 'movement'];
 
 // TODO: DRY this
 function radians(angle) {
@@ -22,8 +26,6 @@ exports.apply = function lineMove(state, previousState, distance) {
 };
 
 exports.draw = function lineDraw(state, previousState, ctx) {
-  ctx.lineWidth = 7;
-
   ctx.beginPath();
 
   ctx.moveTo(previousState.x, state.height - (previousState.y + state.yOffset));

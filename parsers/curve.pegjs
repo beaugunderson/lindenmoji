@@ -1,36 +1,38 @@
+@import "./emoji.pegjs" as Emoji
+
 start
   = initial:Initial ';' rules:Rule+
   {
-    var byLetter = {};
+    var bySymbol = {};
 
     rules.forEach(function (rule) {
       for (var key in rule) {
         if (rule.hasOwnProperty(key)) {
-          byLetter[key] = rule[key];
+          bySymbol[key] = rule[key];
         }
       }
     });
 
-    return {initial: initial, rules: byLetter};
+    return {initial: initial, rules: bySymbol};
   }
 
 Initial
   = Command+
 
 Rule
-  = letter:CommandLetter '=' commands:Command+ ';'?
+  = symbol:CommandSymbol '=' commands:Command+ ';'?
   {
     var rule = {};
 
-    rule[letter] = commands;
+    rule[symbol] = commands;
 
     return rule;
   }
-  / letter:CommandLetter '=' number:Number ';'?
+  / symbol:CommandSymbol '=' number:Number ';'?
   {
     var rule = {};
 
-    rule[letter] = number;
+    rule[symbol] = number;
 
     return rule;
   }
@@ -45,38 +47,19 @@ RestArguments
 // a command is a character followed by 0-n arguments; the join is to handle
 // emojis which otherwise appear as two separate Unicode characters
 Command
-  = c:CommandLetter a:Arguments?
+  = c:CommandSymbol a:Arguments?
   {return {command: c, args: a || []}}
 
 // commands are upper- or lower-case letters or emoji
-CommandLetter
+CommandSymbol
   = [a-z!@$%^&*_+()\[\]\{\}\<\>α-]i
   / Emoji
 
-Emoji
-  = p:PhoneButton
-  / e:EmojiCharacter v:VariationSelector? {
-    return (e.join ? e.join('') : e) + (v ? v.join ? v.join('') : v : '')
-  }
-
-PhoneButton
-  = [0-9#*] VariationSelector? '\u20E3' {return text()}
-
-EmojiCharacter
-  = [\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]
-  / [\uD83C][\uDC04-\uDFFF]
-  / [\uD83D][\uDC00-\uDE4F]
-  / [\uD83D][\uDE80-\uDEC5]
-  / [\u203C-\u3299]
-  / '\u24C2'
-  / [\u2702-\u27B0]
-  / [\u00A9\u00AE]
+Fuzzy
+  = "~"
 
 VariationSelector
   = [\uFE0E\uFE0F]
-
-Fuzzy
-  = "~"
 
 // decimal numbers, we check for VariationSelector and the keycap since decimal
 // numbers are a part of those emoji and we don't want to interpret them as

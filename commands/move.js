@@ -1,6 +1,10 @@
+'use strict';
+
 var line = require('./line.js');
 
-exports.letters = ['f'];
+exports.arguments = ['number'];
+exports.symbols = ['⤵️', 'M'];
+exports.tags = ['movement'];
 
 exports.defaults = line.defaults;
 exports.apply = line.apply;

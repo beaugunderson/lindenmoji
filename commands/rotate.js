@@ -1,4 +1,8 @@
-exports.letters = ['r'];
+'use strict';
+
+exports.arguments = ['0-90'];
+exports.symbols = ['📐', 'R'];
+exports.tags = ['heading'];
 
 var defaults = exports.defaults = {
   rotationAngle: 10
