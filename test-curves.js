@@ -1,7 +1,7 @@
 'use strict';
 
 var async = require('async');
-var doCurve = require('./bot.js');
+var render = require('./render-curve.js');
 
 var curves = [
   // 'A;' +
@@ -54,7 +54,7 @@ var curves = [
 var count = 0;
 
 async.eachSeries(curves, function (curve, eachSeriesCb) {
-  doCurve(curve, './output/out-' + (++count) + '.png', function (err) {
+  render(curve, './output/out-' + (++count) + '.png', function (err) {
     console.log();
 
     eachSeriesCb(err);

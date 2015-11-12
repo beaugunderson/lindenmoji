@@ -1,7 +1,7 @@
 'use strict';
 
-var doCurve = require('./bot.js');
+var render = require('./render-curve.js');
 var generateCurve = require('./generate-curve.js');
 var uuid = require('uuid');
 
-doCurve(generateCurve(), './output/random-' + uuid.v4() + '.png', function () {});
+render(generateCurve(), './output/random-' + uuid.v4() + '.png', function () {});

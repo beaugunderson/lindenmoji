@@ -7,7 +7,7 @@ var Canvas = require('canvas');
 var consoleFormat = require('./lib/console-format.js');
 var pegjs = require('pegjs-import');
 var random = require('random-seed');
-var system = require('./all-commands.js');
+var system = require('./system.js');
 var _ = require('lodash');
 
 var parser = pegjs.buildParser('./parsers/curve.pegjs');

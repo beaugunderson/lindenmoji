@@ -2,7 +2,7 @@
 
 var consoleFormat = require('./lib/console-format.js');
 var split = require('./lib/unicode-split.js');
-var system = require('./all-commands.js');
+var system = require('./system.js');
 var _ = require('lodash');
 
 function getArgument(symbol) {
