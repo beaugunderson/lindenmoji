@@ -51,8 +51,8 @@ program
   }));
 
 program
-  .command('retweet')
-  .description('Retweet replies')
+  .command('respond')
+  .description('Respond to replies')
   .action(function () {
     var T = new Twit(botUtilities.getTwitterAuthFromEnv());
 
@@ -66,14 +66,28 @@ program
         return;
       }
 
-      // T.post('statuses/retweet/:id', {id: tweet.id_str},
-      //     function (err, data, response) {
-      //   if (err || response.statusCode !== 200) {
-      //     return console.log('TUWM error', err, data);
-      //   }
+      var curve = tweet.text.replace(new RegExp('.*@' + SCREEN_NAME + '\s*'), '');
 
-      //   console.log('Successfully retweeted tweet', tweet.id_str);
-      // });
+      console.log('rendering curve for', tweet.user.screen_name, curve);
+
+      render(curve, 1024, 1024, false, function (err, buffer) {
+        if (err || !buffer) {
+          throw err;
+        }
+
+        var reply = {
+          in_reply_to_status_id: tweet.id_str,
+          status: '@' + tweet.user.screen_name
+        };
+
+        T.updateWithMedia(reply, buffer, function (updateError, response) {
+          if (updateError) {
+            return console.error('TUWM error', updateError, response.statusCode);
+          }
+
+          console.log('TUWM OK');
+        });
+      });
     });
   });
 
