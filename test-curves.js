@@ -19,7 +19,7 @@ var curves = [
     // 'O=m8 →5 B [A];' +
     // '〰️=0.8; 🍥=0.6',
 
-  // 'x x x x; x=F O r90;',
+  'x x x x; x=F O +; 📐=90',
 
   // 'x; x=F-[[x]+x]+F[+Fx]-x; F=FF; α=25',
 
@@ -28,9 +28,9 @@ var curves = [
   // 'x y x y Z y x y x; x=F F + y + F x - F r23.3;' +
     // 'y=c F + F r13.3; Z=c F c F c F c',
 
-  // 'F; F=F + + B F - F + F; B=+ F [F - F [- F + F]]',
+  'F; F=F + + B F - F + F; B=+ F [F - F [- F + F]]',
 
-  // 'F; F=m1 F[+ + F m7[- F]]F[-FF[F]]; 📐=12; 〰️=0.8; 🍥=0.6',
+  'F; F=F[+ + F [- F]]F[-FF[F]]; 📐=12; 〰️=0.8; 🍥=0.6',
 
   'l; l=+rF-lFl-Fr+; r=-lF+rFr+Fl-; 📐=90',
 
@@ -54,11 +54,12 @@ var curves = [
 var count = 0;
 
 async.eachSeries(curves, function (curve, eachSeriesCb) {
-  render(curve, './output/out-' + (++count) + '.png', function (err) {
-    console.log();
+  render(curve, 5000, 5000, './output/out-' + (++count) + '.png',
+    function (err) {
+      console.log();
 
-    eachSeriesCb(err);
-  });
+      eachSeriesCb(err);
+    });
 }, function (err) {
   if (err) {
     console.log('err', err);
