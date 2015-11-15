@@ -11,7 +11,7 @@ var _ = require('lodash');
 
 var parser = pegjs.buildParser('./parsers/curve.pegjs');
 
-var MAX_ITERATIONS = 50000;
+var MAX_ITERATIONS = 1000;
 
 function formatNumber(number) {
   return Math.round(number * 100) / 100;
