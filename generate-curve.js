@@ -84,6 +84,10 @@ module.exports = function () {
 
   console.log('chosen settings:', consoleFormat(chosenSettings.join('')));
 
+  chosenSettings = chosenSettings.join('; ');
+
+  remainingCharacters -= split(chosenSettings).length;
+
   function randomSymbol() {
     return Math.random() > controlWeight ?
       _.sample(nodeSymbols) :
@@ -159,7 +163,7 @@ module.exports = function () {
   var curve = [
     start,
     rules,
-    chosenSettings.join('; ')
+    chosenSettings
   ];
 
   return curve.join('; ');
