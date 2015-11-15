@@ -8,7 +8,7 @@ var defaults = exports.defaults = {
   rotationAngle: 10
 };
 
-exports.apply = function rotate(state, previousState, angle) {
+exports.apply = function rotate(state, previousState, globals, angle) {
   var resolved = angle || state.angle || defaults.rotationAngle;
 
   state.heading += resolved +

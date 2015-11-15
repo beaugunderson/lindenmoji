@@ -5,20 +5,23 @@ var split = require('./lib/unicode-split.js');
 var system = require('./system.js');
 var _ = require('lodash');
 
-function getArgument(symbol) {
-  if (!system.commands[symbol].arguments || Math.random() < 0.05) {
+function getArgument(type, symbol, required) {
+  if (!type[symbol].arguments || (Math.random() < 0.05 && !required)) {
     return '';
   }
 
-  return system.commands[symbol].arguments.map(function (arg) {
+  return type[symbol].arguments.map(function (arg) {
     if (arg === 'style') {
       return "'red'";
+    } else if (arg === 'angle') {
+      return Math.round((180 / _.random(2, 16)) * 100) / 100;
     } else if (arg === 'number') {
       return _.random(1, 10);
     } else if (/^[0-9]/.test(arg)) {
       arg = arg.split('-');
 
-      return _.random(parseInt(arg[0], 10), parseInt(arg[1], 10));
+      return Math.round(_.random(parseFloat(arg[0], 10),
+                                 parseFloat(arg[1], 10)) * 100) / 100;
     }
 
     return '';
@@ -26,7 +29,6 @@ function getArgument(symbol) {
 }
 
 module.exports = function () {
-  var angle = Math.round((180 / _.random(2, 16)) * 100) / 100;
   var controlWeight = _.random(0.3, 0.7);
   var index = 0;
   var remainingCharacters = 100;
@@ -38,8 +40,11 @@ module.exports = function () {
   // remove control symbols from potential symbols
   symbols = _.difference(symbols, system.controlSymbols);
 
-  console.log('tags:', system.tags);
-  console.log('symbols by tag:', system.symbolsByTag);
+  console.log('tags:', system.tags.join(', '));
+
+  _.each(system.symbolsByTag, function (s, tag) {
+    console.log('%s: %s', tag, consoleFormat(s.join('')));
+  });
 
   console.log('available node symbols:', symbols.join(' '));
   console.log('available control symbols:', consoleFormat(system.emojiSymbols.join('')));
@@ -57,7 +62,7 @@ module.exports = function () {
   chosenSymbols = _.flatten(chosenSymbols.map(function (symbol) {
     // use multiple sets of arguments
     return _.times(_.random(1, 5), function () {
-      return symbol + getArgument(symbol);
+      return symbol + getArgument(system.commands, symbol);
     });
   }));
 
@@ -74,7 +79,7 @@ module.exports = function () {
   console.log('chosen settings:', consoleFormat(chosenSettings.join('')));
 
   chosenSettings = chosenSettings.map(function (symbol) {
-    return symbol + '=' + getArgument(symbol);
+    return symbol + '=' + getArgument(system.settings, symbol, true);
   });
 
   console.log('chosen settings:', consoleFormat(chosenSettings.join('')));
@@ -154,8 +159,7 @@ module.exports = function () {
   var curve = [
     start,
     rules,
-    chosenSettings.join('; '),
-    '📐=' + angle
+    chosenSettings.join('; ')
   ];
 
   return curve.join('; ');

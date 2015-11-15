@@ -3,11 +3,12 @@
 var requireDirectory = require('require-directory');
 var _ = require('lodash');
 
-module.exports = {
+var system = {
   commands: {},
   controlSymbols: [],
   emojiSymbols: [],
   symbolsByTag: {},
+  settings: {},
   tags: []
 };
 
@@ -15,18 +16,26 @@ requireDirectory(module, './commands/', {
   visit: function (command) {
     var emojiSymbol = command.symbols[0];
 
-    module.exports.tags = _.uniq(module.exports.tags.concat(command.tags));
-    module.exports.controlSymbols = module.exports.controlSymbols
-      .concat(command.symbols);
-    module.exports.emojiSymbols.push(emojiSymbol);
+    system.tags = _.uniq(system.tags.concat(command.tags));
 
-    command.symbols.forEach(function (symbol) {
-      module.exports.commands[symbol] = command;
-    });
+    if (_.contains(command.tags, 'setting')) {
+      command.symbols.forEach(function (symbol) {
+        system.settings[symbol] = command;
+      });
+    } else {
+      system.controlSymbols = system.controlSymbols.concat(command.symbols);
+      system.emojiSymbols.push(emojiSymbol);
+
+      command.symbols.forEach(function (symbol) {
+        system.commands[symbol] = command;
+      });
+    }
 
     command.tags.forEach(function (tag) {
-      module.exports.symbolsByTag[tag] =
-        (module.exports.symbolsByTag[tag] || []).concat(emojiSymbol);
+      system.symbolsByTag[tag] =
+        (system.symbolsByTag[tag] || []).concat(emojiSymbol);
     });
   }
 });
+
+module.exports = system;

@@ -1,5 +1,7 @@
 'use strict';
 
+var updateBounds = require('../lib/update-bounds.js');
+
 exports.arguments = ['number'];
 exports.symbols = ['⬜️', 'S'];
 exports.tags = ['drawing'];
@@ -10,7 +12,16 @@ var defaults = exports.defaults = {
   size: 7.5
 };
 
-exports.draw = function squareDraw(state, previousState, ctx, size) {
+exports.apply = function squareApply(state, previousState, globals, size) {
+  var resolved = (state.scale * (size || defaults.size)) / 2;
+
+  updateBounds(globals, [
+    [state.x - resolved, state.y - resolved],
+    [state.x + resolved, state.y + resolved]
+  ]);
+};
+
+exports.draw = function squareDraw(state, previousState, globals, ctx, size) {
   ctx.beginPath();
 
   var width = state.scale * (size || defaults.size);

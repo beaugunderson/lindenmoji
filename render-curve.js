@@ -2,8 +2,7 @@
 
 var fs = require('fs');
 var Canvas = require('canvas');
-// TODO:
-// var canvasUtilities = require('canvas-utilities');
+var canvasUtilities = require('canvas-utilities/lib/utilities.js');
 var consoleFormat = require('./lib/console-format.js');
 var pegjs = require('pegjs-import');
 var random = require('random-seed');
@@ -12,13 +11,15 @@ var _ = require('lodash');
 
 var parser = pegjs.buildParser('./parsers/curve.pegjs');
 
+var MAX_ITERATIONS = 50000;
+
 function formatNumber(number) {
   return Math.round(number * 100) / 100;
 }
 
 function expandCurve(initial, rules, maxLength) {
   var curve = initial;
-
+  var iterations = 0;
   var last;
 
   function expand(c) {
@@ -29,7 +30,7 @@ function expandCurve(initial, rules, maxLength) {
     return c;
   }
 
-  while (curve.length <= maxLength) {
+  while (curve.length <= maxLength && iterations++ < MAX_ITERATIONS) {
     last = curve;
 
     curve = _.flatten(curve.map(expand));
@@ -51,65 +52,71 @@ function render(curve, settings, maxLength, width, height, ctx, draw, xOffset,
   var stack = [];
 
   var state = {
+    angle: 60,
+    angleChaos: 0,
+    distance: 10,
+    distanceChaos: 0,
+    heading: 90.0,
+    height: height,
+    random: random.create(seed),
+    scale: scale || 1,
+    seed: seed,
+    width: width,
     x: 0.0,
     y: 0.0,
-    heading: curve.rules.heading || 90.0,
-    width: width,
-    height: height,
     xOffset: xOffset || 0,
-    yOffset: yOffset || 0,
-    seed: seed,
-    angle: curve.rules.α || curve.rules['📐'] || 60,
-    angleChaos: curve.rules['🍥'] || 0,
-    distanceChaos: curve.rules['〰️'] || 0,
-    scale: scale || 1,
-    random: random.create(seed)
+    yOffset: yOffset || 0
   };
 
-  var previousState;
-
-  var bounds = {
+  var globals = {
+    i: 0,
     minX: Infinity,
     minY: Infinity,
     maxX: -Infinity,
     maxY: -Infinity
   };
 
+  var previousState;
+
+  _.each(settings, function (args, symbol) {
+    if (system.settings[symbol].apply) {
+      system.settings[symbol].apply(state, args[0]);
+    }
+  });
+
   if (draw) {
     // clear the background
-    ctx.fillStyle = 'white';
+    ctx.fillStyle = 'rgb(100, 100, 100)';
     ctx.fillRect(0, 0, state.width, state.height);
 
-    if (settings) {
-      _.each(settings, function (args, symbol) {
-        if (system.commands[symbol].draw) {
-          system.commands[symbol].draw(state, ctx, args[0]);
-        }
-      });
-    }
+    ctx.lineCap = 'round';
+    ctx.lineWidth = Math.max((7.0 / 5000) * width, 1.0);
+
+    // initial colour if specific colouring not used
+    ctx.strokeStyle = 'white';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+
+    _.each(settings, function (args, symbol) {
+      if (system.settings[symbol].draw) {
+        system.settings[symbol].draw(state, ctx, args[0]);
+      }
+    });
 
     // offset as required
     ctx.translate(state.xOffset, 0);
-
-    // TODO: unsure if this requires scaling or not
-    ctx.lineWidth = 7.0;
-
-    // initial colour if specific colouring not used
-    ctx.strokeStyle = 'rgba(255, 220, 0, 1)';
-    ctx.fillStyle = 'rgba(255, 220, 0, 1)';
   }
 
   function updateBounds() {
-    if (state.x < bounds.minX) {
-      bounds.minX = state.x;
-    } else if (state.x > bounds.maxX) {
-      bounds.maxX = state.x;
+    if (state.x < globals.minX) {
+      globals.minX = state.x;
+    } else if (state.x > globals.maxX) {
+      globals.maxX = state.x;
     }
 
-    if (state.y < bounds.minY) {
-      bounds.minY = state.y;
-    } else if (state.y > bounds.maxY) {
-      bounds.maxY = state.y;
+    if (state.y < globals.minY) {
+      globals.minY = state.y;
+    } else if (state.y > globals.maxY) {
+      globals.maxY = state.y;
     }
   }
 
@@ -119,19 +126,19 @@ function render(curve, settings, maxLength, width, height, ctx, draw, xOffset,
   _.each(curve.expanded, function (command) {
     previousState = _.cloneDeep(state);
 
-    if (system.commands[command.command]) {
+    var c = system.commands[command.command];
+
+    if (c) {
       // TODO: apply command.args
-      if (system.commands[command.command].apply) {
-        system.commands[command.command].apply(state, previousState,
-          command.args[0]);
+      if (c.apply) {
+        c.apply(state, previousState, globals, command.args[0]);
       }
 
       updateBounds();
 
-      if (draw && system.commands[command.command].draw) {
+      if (draw && c.draw) {
         // TODO: apply command.args
-        system.commands[command.command].draw(state, previousState, ctx,
-          command.args[0]);
+        c.draw(state, previousState, globals, ctx, command.args[0]);
       }
     } else {
       switch (command.command) {
@@ -148,37 +155,43 @@ function render(curve, settings, maxLength, width, height, ctx, draw, xOffset,
         break;
       }
     }
+
+    if (globals.i % 10000 === 0) {
+      process.stdout.write('+');
+    } else if (globals.i % 1000 === 0) {
+      process.stdout.write('.');
+    }
+
+    globals.i++;
   });
 
+  process.stdout.write('\n');
+
   if (draw) {
+    // ctx.strokeStyle = 'red';
+
+    // ctx.beginPath();
+
+    // ctx.moveTo(globals.minX, globals.minY + state.yOffset);
+    // ctx.lineTo(globals.minX, globals.maxY + state.yOffset);
+    // ctx.lineTo(globals.maxX, globals.maxY + state.yOffset);
+    // ctx.lineTo(globals.maxX, globals.minY + state.yOffset);
+
+    // ctx.closePath();
+
+    // ctx.stroke();
+
     ctx.restore();
   }
 
-  return {
-    bounds: bounds
-  };
+  return globals;
 }
 
-module.exports = function doCurve(curve, filename, cb) {
+module.exports = function doCurve(curve, width, height, filename, cb) {
   console.log('curve:', consoleFormat(curve));
 
-  var WIDTH = 5000;
-  var HEIGHT = 5000;
-
-  var MAX_LENGTH = 100000;
-
-  var canvas = new Canvas(WIDTH, HEIGHT);
-  var ctx = canvas.getContext('2d');
-
-  // TODO: use canvasUtilities.prettyCanvas here
-  ctx.imageSmoothingEnabled = true;
-
-  ctx.antialias = 'subpixel';
-
-  ctx.filter = 'best';
-  ctx.patternQuality = 'best';
-
-  ctx.lineCap = 'round';
+  var canvas = new Canvas(width, height);
+  var ctx = canvasUtilities.getContext(canvas);
 
   curve = curve.replace(/\s/g, '');
 
@@ -193,71 +206,79 @@ module.exports = function doCurve(curve, filename, cb) {
     }
   });
 
+  var MAX_LENGTH = 100000;
+
   // process each command in turn
   parsed.expanded = expandCurve(parsed.initial, parsed.rules, MAX_LENGTH);
 
   console.log('path length:', parsed.expanded.length);
 
   // first render, for scale
-  var result = render(parsed, settings, MAX_LENGTH, WIDTH, HEIGHT, null, false);
+  var result = render(parsed, settings, MAX_LENGTH, width, height, null, false);
 
-  var renderWidth = result.bounds.maxX - result.bounds.minX;
-  var renderHeight = result.bounds.maxY - result.bounds.minY;
+  var renderWidth = result.maxX - result.minX;
+  var renderHeight = result.maxY - result.minY;
 
   // add padding
-  result.bounds.minX -= renderWidth * 0.05;
-  result.bounds.minY -= renderHeight * 0.05;
+  result.minX -= renderWidth * 0.05;
+  result.minY -= renderHeight * 0.05;
 
-  result.bounds.maxX += renderWidth * 0.05;
-  result.bounds.maxY += renderHeight * 0.05;
+  result.maxX += renderWidth * 0.05;
+  result.maxY += renderHeight * 0.05;
 
-  renderWidth = Math.round(result.bounds.maxX - result.bounds.minX);
-  renderHeight = Math.round(result.bounds.maxY - result.bounds.minY);
+  renderWidth = Math.round(result.maxX - result.minX);
+  renderHeight = Math.round(result.maxY - result.minY);
 
   console.log('bounds: %d, %d, %d, %d',
-    formatNumber(result.bounds.minX),
-    formatNumber(result.bounds.minY),
-    formatNumber(result.bounds.maxX),
-    formatNumber(result.bounds.maxY));
+    formatNumber(result.minX),
+    formatNumber(result.minY),
+    formatNumber(result.maxX),
+    formatNumber(result.maxY));
 
   var scale;
 
   console.log('width, height:', renderWidth, renderHeight);
 
-  if (renderWidth / renderHeight > WIDTH / HEIGHT) {
-    scale = WIDTH / renderWidth;
+  if (renderWidth / renderHeight > width / height) {
+    scale = width / renderWidth;
   } else {
-    scale = HEIGHT / renderHeight;
+    scale = height / renderHeight;
   }
 
   console.log('scale:', formatNumber(scale));
 
-  result.bounds.minX *= scale;
-  result.bounds.minY *= scale;
-  result.bounds.maxX *= scale;
-  result.bounds.maxY *= scale;
+  result.minX *= scale;
+  result.minY *= scale;
+  result.maxX *= scale;
+  result.maxY *= scale;
 
-  renderWidth = Math.round(result.bounds.maxX - result.bounds.minX);
-  renderHeight = Math.round(result.bounds.maxY - result.bounds.minY);
+  renderWidth = Math.round(result.maxX - result.minX);
+  renderHeight = Math.round(result.maxY - result.minY);
 
   console.log('width, height:', renderWidth, renderHeight);
 
-  var CENTER_X = WIDTH / 2;
-  var CENTER_Y = HEIGHT / 2;
+  var CENTER_X = width / 2;
+  var CENTER_Y = height / 2;
 
-  var xOffset = Math.round(CENTER_X - ((renderWidth / 2) + result.bounds.minX));
-  var yOffset = Math.round(CENTER_Y - ((renderHeight / 2) + result.bounds.minY));
+  var xOffset = Math.round(CENTER_X - ((renderWidth / 2) + result.minX));
+  var yOffset = Math.round(CENTER_Y - ((renderHeight / 2) + result.minY));
 
   console.log('x, y offset:', xOffset, yOffset);
 
-  result = render(parsed, settings, MAX_LENGTH, WIDTH, HEIGHT, ctx, true,
+  result = render(parsed, settings, MAX_LENGTH, width, height, ctx, true,
                   xOffset, yOffset, scale);
+
+  console.log('saving...');
 
   canvas.toBuffer(function (err, buffer) {
     if (err) {
-      throw err;
+      return cb(err);
     }
 
-    fs.writeFile(filename, buffer, cb);
+    if (filename) {
+      return fs.writeFile(filename, buffer, cb);
+    }
+
+    cb(err, buffer);
   });
 };

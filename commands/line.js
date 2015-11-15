@@ -13,7 +13,7 @@ var defaults = exports.defaults = {
   distance: 10
 };
 
-exports.apply = function lineMove(state, previousState, distance) {
+exports.apply = function lineMove(state, previousState, globals, distance) {
   var resolved = (distance || state.distance || defaults.distance) * state.scale;
 
   resolved += state.random.floatBetween(resolved * state.distanceChaos * -1.0,
@@ -25,7 +25,7 @@ exports.apply = function lineMove(state, previousState, distance) {
   state.y += resolved * Math.sin(rad);
 };
 
-exports.draw = function lineDraw(state, previousState, ctx) {
+exports.draw = function lineDraw(state, previousState, globals, ctx) {
   ctx.beginPath();
 
   ctx.moveTo(previousState.x, state.height - (previousState.y + state.yOffset));

@@ -1,5 +1,7 @@
 'use strict';
 
+var updateBounds = require('../lib/update-bounds.js');
+
 exports.arguments = ['number'];
 exports.symbols = ['⭕️', 'O'];
 exports.tags = ['drawing'];
@@ -10,11 +12,21 @@ var defaults = exports.defaults = {
   size: 5
 };
 
-exports.draw = function circleDraw(state, previousState, ctx, size) {
+exports.apply = function circleApply(state, previousState, globals, size) {
+  var r = state.scale * (size || defaults.size);
+
+  updateBounds(globals, [
+    [state.x - r, state.y - r],
+    [state.x + r, state.y + r]
+  ]);
+};
+
+exports.draw = function circleDraw(state, previousState, globals, ctx, size) {
+  var r = state.scale * (size || defaults.size);
+
   ctx.beginPath();
 
-  ctx.arc(state.x, state.height - (state.y + state.yOffset),
-          state.scale * (size || defaults.size), 0, 2 * Math.PI);
+  ctx.arc(state.x, state.height - (state.y + state.yOffset), r, 0, 2 * Math.PI);
 
   ctx.stroke();
 };

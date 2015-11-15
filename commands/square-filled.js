@@ -6,8 +6,10 @@ exports.arguments = square.arguments;
 exports.symbols = ['⬛️'];
 exports.tags = square.tags;
 
-exports.draw = function squareFilledDraw(state, previousState, ctx, size) {
-  square.draw(state, previousState, ctx, size);
+exports.apply = square.apply;
+
+exports.draw = function squareFilledDraw(state, previousState, globals, ctx, size) {
+  square.draw.apply(this, arguments);
 
   ctx.fill();
 };
