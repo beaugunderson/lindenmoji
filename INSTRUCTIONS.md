@@ -1,10 +1,13 @@
 ## Instructions
 
-Lindenmoji renders [Lindenmayer systems](https://en.wikipedia.org/wiki/L-system). You may specify an l-system by specifying an
-initial condition, defining rules, and defining settings.
+Lindenmoji renders
+[Lindenmayer systems](https://en.wikipedia.org/wiki/L-system). You may specify
+an L-system by specifying an initial condition, defining rules, and defining
+settings.
 
-This is a valid l-system that draws a single line:
+These are valid L-systems that draw a single line:
 
+`F`
 `a; a=F`
 
 The initial condition is the rule `a`, which contains only the command `F`--the
