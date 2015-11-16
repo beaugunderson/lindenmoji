@@ -7,18 +7,18 @@ This is a valid l-system that draws a single line:
 
 `a; a=F`
 
-The initial condition is the rule `a`, which is defined as `F`, which is the
-command to move the cursor forward and draw a line (it may also be invoked with
-→ and ).
+The initial condition is the rule `a`, which contains only the command `F`--the
+command to move the cursor forward and draw a line (which may also be invoked
+with ➡️ and →).
 
 A more complex system looks like this:
 
 `aaaa; a=FO+; 📐=90`
 
-This defines an initial condition of `aaaa` (which means do rule `a` four
-times) and defines `a` as "draw a line", "draw a circle", and "rotate by the
-rotation angle". `📐` is a setting that specifies the rotation angle, in this
-case 90 degrees. The output is a square with a circle drawn at each corner:
+This defines an initial condition of `aaaa` ("do rule `a` four times") and
+defines `a` as "draw a line", "draw a circle", and "rotate by the rotation
+angle". `📐` is a setting that specifies the rotation angle, in this case 90
+degrees. The output is a square with a circle drawn at each corner:
 
 ![a square with a circle centered on each corner](examples/simple-square.png)
 
@@ -72,7 +72,7 @@ Draw a filled circle. Takes an optional size.
 
 #### 📐
 
-Rotate the heading by the specified positive or noegative angle.
+Rotate the heading by the specified positive or negative angle.
 
 #### 🎨
 
