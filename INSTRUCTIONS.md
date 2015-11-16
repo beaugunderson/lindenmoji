@@ -41,80 +41,29 @@ first example to define more than one rule:
 
 ### Commands
 
-#### ➡️, →, `F`
-
-Draw a line in the direction of the heading. Takes an optional length.
-
-#### ⤵️, `M`
-
-Move the cursor in the direction of the heading. Takes an optional length.
-
-#### ↪️, ↪, `-`
-
-Rotate the heading counter-clockwise by the rotation angle.
-
-#### ↩️, ↩, `+`
-
-Rotate the heading clockwise by the rotation angle.
-
-##### ⬜️
-
-Draw an empty square. Takes an optional size.
-
-#### ⬛️
-
-Draw a filled square. Takes an optional size.
-
-#### ⭕️, `O`
-
-Draw en empty circle. Takes an optional size.
-
-#### 🔴
-
-Draw a filled circle. Takes an optional size.
-
-#### 📐
-
-Rotate the heading by the specified positive or negative angle.
-
-#### 🎨
-
-Set the line color. There are approximately 10 colors available.
-
-#### `[`
-
-Store the current state.
-
-#### `]`
-
-Go back to the previous state.
+Symbol(s) | Description
+----------|---------------------------------------------------------------------------
+➡️, →, `F` | Draw a line in the direction of the heading. Takes an optional length.
+⤵️, `M`    | Move the cursor in the direction of the heading. Takes an optional length.
+↪️, ↪, `-` | Rotate the heading counter-clockwise by the rotation angle.
+↩️, ↩, `+` | Rotate the heading clockwise by the rotation angle.
+⬜️         | Draw an empty square. Takes an optional size.
+⬛️         | Draw a filled square. Takes an optional size.
+⭕️, `O`    | Draw en empty circle. Takes an optional size.
+🔴         | Draw a filled circle. Takes an optional size.
+📐         | Rotate the heading by the specified positive or negative angle.
+🎨         | Set the line color. There are approximately 10 colors available.
+`[`       | Store the current state.
+`]`       | Restore the previous state.
 
 ### Settings
 
-#### 📐
-
-Set the global rotation angle.
-
-#### 🌇
-
-Specify a gradient background. There are approximately 7 backgrounds available.
-
-#### 🍥
-
-Set the variation in angle.
-
-#### 〰️
-
-Set the variation in distance.
-
-#### 🎨
-
-Set the default line color.
-
-#### 🌝
-
-Set the default line opacity.
-
-#### 🌞
-
-Set the default fill opacity.
+Symbol | Description
+-------|---------------------------------------------------------------------------
+📐      | Set the global rotation angle.
+🌇      | Specify a gradient background. There are approximately 7 backgrounds available.
+🍥      | Set the variation in angle.
+〰️     | Set the variation in distance.
+🎨       | Set the default line color.
+🌝      | Set the default line opacity.
+🌞      | Set the default fill opacity.
