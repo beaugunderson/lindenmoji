@@ -110,3 +110,11 @@ Set the variation in distance.
 #### 🎨
 
 Set the default line color.
+
+#### 🌝
+
+Set the default line opacity.
+
+#### 🌞
+
+Set the default fill opacity.

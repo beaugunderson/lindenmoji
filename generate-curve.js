@@ -1,6 +1,7 @@
 'use strict';
 
 var consoleFormat = require('./lib/console-format.js');
+var ruleSplit = require('./lib/rule-split.js');
 var split = require('./lib/unicode-split.js');
 var system = require('./system.js');
 var _ = require('lodash');
@@ -20,8 +21,15 @@ function getArgument(type, symbol, required) {
     } else if (/^[0-9]/.test(arg)) {
       arg = arg.split('-');
 
+      var randomFloat = false;
+
+      if (/\./.test(arg)) {
+        randomFloat = true;
+      }
+
       return Math.round(_.random(parseFloat(arg[0], 10),
-                                 parseFloat(arg[1], 10)) * 100) / 100;
+                                 parseFloat(arg[1], 10),
+                                 randomFloat) * 100) / 100;
     }
 
     return '';
@@ -51,7 +59,7 @@ module.exports = function () {
 
   var chosenSymbols = [];
 
-  ['drawing', 'movement', 'heading'].forEach(function (tag) {
+  ['drawing', 'movement', 'heading', 'appearance'].forEach(function (tag) {
     chosenSymbols = chosenSymbols.concat(
       _.sample(system.symbolsByTag[tag],
                _.random(1, system.symbolsByTag[tag].length)));
@@ -124,7 +132,7 @@ module.exports = function () {
       rule += randomSymbol();
     });
 
-    var ruleArray = split(rule);
+    var ruleArray = ruleSplit(rule);
     var bracketPairsToAdd = _.random(Math.floor(ruleArray.length / 6));
 
     // insert push/pop symbols, which need to be matched

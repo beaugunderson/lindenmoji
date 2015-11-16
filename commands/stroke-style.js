@@ -1,5 +1,7 @@
 'use strict';
 
+var color = require('onecolor');
+
 var palette = exports.palette = [
   '#ff0dff', '#e80c7a',
   '#94eed5', '#f3fee2',
@@ -13,13 +15,18 @@ var palette = exports.palette = [
 
 exports.arguments = ['1-' + palette.length];
 exports.symbols = ['🎨'];
-exports.tags = ['drawing'];
-var index = exports.index = 0;
+exports.tags = ['appearance'];
 
-exports.draw = function drawStrokeStyle(state, previousState, globals, ctx, color) {
-  if (color >= 1) {
-    ctx.strokeStyle = palette[(color - 1) % palette.length];
+exports.draw = function drawStrokeStyle(state, previousState, globals, ctx, index) {
+  var c;
+
+  if (index >= 1) {
+    c = palette[(index - 1) % palette.length];
   } else {
-    ctx.strokeStyle = palette[index++ % palette.length];
+    c = palette[globals.i % palette.length];
   }
+
+  state.strokeColor = c;
+
+  ctx.strokeStyle = color(c).alpha(state.strokeOpacity).cssa();
 };

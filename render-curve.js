@@ -3,6 +3,7 @@
 var fs = require('fs');
 var Canvas = require('canvas');
 var canvasUtilities = require('canvas-utilities/lib/utilities.js');
+var color = require('onecolor');
 var consoleFormat = require('./lib/console-format.js');
 var pegjs = require('pegjs-import');
 var random = require('random-seed');
@@ -54,22 +55,38 @@ function render(curve, settings, maxLength, width, height, ctx, draw, xOffset,
   var state = {
     angle: 60,
     angleChaos: 0,
+
     distance: 10,
     distanceChaos: 0,
-    heading: 90.0,
+
+    heading: 90,
+
+    fillColor: 'white',
+    fillOpacity: 0.6,
+
+    strokeColor: 'white',
+    strokeOpacity: 1,
+
+    width: width,
     height: height,
+
+    x: 0,
+    y: 0,
+
+    xOffset: xOffset || 0,
+    yOffset: yOffset || 0,
+
+    // TODO: move these to globals
     random: random.create(seed),
     scale: scale || 1,
-    seed: seed,
-    width: width,
-    x: 0.0,
-    y: 0.0,
-    xOffset: xOffset || 0,
-    yOffset: yOffset || 0
+    seed: seed
   };
 
   var globals = {
     i: 0,
+
+    curveLength: curve.expanded.length,
+
     minX: Infinity,
     minY: Infinity,
     maxX: -Infinity,
@@ -92,15 +109,15 @@ function render(curve, settings, maxLength, width, height, ctx, draw, xOffset,
     ctx.lineCap = 'round';
     ctx.lineWidth = Math.max((7.0 / 5000) * width, 1.0);
 
-    // initial colour if specific colouring not used
-    ctx.strokeStyle = 'white';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-
     _.each(settings, function (args, symbol) {
       if (system.settings[symbol].draw) {
         system.settings[symbol].draw(state, ctx, args[0]);
       }
     });
+
+    // initial colour if specific colouring not used
+    ctx.strokeStyle = color(state.strokeColor).alpha(state.strokeOpacity).cssa();
+    ctx.fillStyle = color(state.fillColor).alpha(state.fillOpacity).cssa();
 
     // offset as required
     ctx.translate(state.xOffset, 0);
