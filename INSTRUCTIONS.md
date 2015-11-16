@@ -1,6 +1,6 @@
 ## Instructions
 
-Lindenmoji renders
+[@lindenmoji](https://twitter.com/lindenmoji) renders
 [Lindenmayer systems](https://en.wikipedia.org/wiki/L-system). You may specify
 an L-system by specifying an initial condition, defining rules, and defining
 settings.
