@@ -296,6 +296,6 @@ module.exports = function doCurve(curve, width, height, filename, cb) {
       return fs.writeFile(filename, buffer, cb);
     }
 
-    cb(err, buffer);
+    cb(err, buffer, {width: renderWidth, height: renderHeight});
   });
 };

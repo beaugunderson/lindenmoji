@@ -1,5 +1,6 @@
 'use strict';
 
+var async = require('async');
 var botUtilities = require('bot-utilities');
 var generateCurve = require('./generate-curve.js');
 var program = require('commander');
@@ -17,23 +18,50 @@ var PHOTO_LENGTH = 24;
 
 var MAX_LENGTH = TWEET_LENGTH - PHOTO_LENGTH;
 
-program
-  .command('tweet')
-  .description('Generate and tweet an image')
-  .option('-r, --random', 'only post a percentage of the time')
-  .action(botUtilities.randomCommand(function () {
-    var curve;
-    var tweet;
+function goodCurve(cb) {
+  var curve;
+  var tweet;
+  var aspect;
+  var last;
+
+  async.whilst(function () {
+    return !aspect || aspect >= 10;
+  }, function (cbWhilst) {
+    console.log('looking for a good aspect...');
+
+    tweet = null;
 
     while (!tweet || tweet.length > MAX_LENGTH) {
       curve = generateCurve();
       tweet = curve.replace(/; /g, ';\n');
     }
 
-    // TODO: make this an async while that checks metadata for a pleasing
-    // aspect ratio
-    render(curve, 1024, 1024, false, function (err, buffer) {
+    render(curve, 1024, 1024, false, function (err, buffer, meta) {
       if (err || !buffer) {
+        cbWhilst(err);
+      }
+
+      aspect = Math.max(meta.width, meta.height) /
+               Math.min(meta.width, meta.height);
+
+      console.log('aspect ratio: %d', aspect);
+
+      last = buffer;
+
+      cbWhilst();
+    });
+  }, function (err) {
+    cb(err, last, tweet);
+  });
+}
+
+program
+  .command('tweet')
+  .description('Generate and tweet an image')
+  .option('-r, --random', 'only post a percentage of the time')
+  .action(botUtilities.randomCommand(function () {
+    goodCurve(function (err, buffer, tweet) {
+      if (err) {
         throw err;
       }
 
