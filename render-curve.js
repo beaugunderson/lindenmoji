@@ -157,6 +157,10 @@ function render(curve, settings, maxLength, width, height, ctx, draw, xOffset,
         _.each(settings, function (args, symbol) {
           if (system.settings[symbol].beforeDraw) {
             system.settings[symbol].beforeDraw(state, previousState, globals, ctx, args[0]);
+
+            // TODO: dry this
+            ctx.strokeStyle = color(state.strokeColor).alpha(state.strokeOpacity).cssa();
+            ctx.fillStyle = color(state.fillColor).alpha(state.fillOpacity).cssa();
           }
         });
 
