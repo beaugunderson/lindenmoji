@@ -5,9 +5,8 @@
 an L-system by specifying an initial condition, defining rules, and defining
 settings.
 
-These are valid L-systems that draw a single line:
+This is a valid L-system that draws a single line:
 
-`F`
 `a; a=F`
 
 The initial condition is the rule `a`, which contains only the command `F`--the
