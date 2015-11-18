@@ -34,13 +34,13 @@ var curves = [
 
   'F; F=F[+ + F [- F]]F[-FF[F]]; 📐=12; 〰️=0.8; 🍥=0.6; 🌈=1',
 
-  'l; l=+rF-lFl-Fr+; r=-lF+rFr+Fl-; 📐=90',
+  'l; l=+rF-lFl-Fr+; r=-lF+rFr+Fl-; 📐=90; 🌈=1',
 
-  'l; l=+rF-lFl-Fr+; r=-lF+rFr+Fl-; 📐=90; 🍥=0.01',
+  'l; l=+rF-lFl-Fr+; r=-lF+rFr+Fl-; 📐=90; 🍥=0.01; 🌈=1',
 
-  'yF; x=yF+xF+y; y=xF-yF-x; 📐=60',
+  'yF; x=yF+xF+y; y=xF-yF-x; 📐=60; 🌈=1',
 
-  'Fx; x=x+yF++yF-Fx--FxFx-yF+; y=-Fx+yFyF++yF+Fx--Fx-y; 📐=60',
+  'Fx; x=x+yF++yF-Fx--FxFx-yF+; y=-Fx+yFyF++yF+Fx--Fx-y; 📐=60; 🌈=1',
 
   'Fx; x=x+yF++yF-Fx--FxFx-yF+; y=-Fx+yFyF++yF+Fx--Fx-y; 📐=60; 🍥=0.01',
 
@@ -48,9 +48,9 @@ var curves = [
 
   'Fx; x=x+yF++yF-Fx--FxFx-yF+; y=-Fx+yFyF++yF+Fx--Fx-y; 📐=60; 🍥=0.01; 〰️=0.01',
 
-  'F+xF+F+xF; x=xF-F+F-xF+F+xF-F+F-x; 📐=90',
+  'F+xF+F+xF; x=xF-F+F-xF+F+xF-F+F-x; 📐=90; 🌈=1',
 
-  'FxF--FF--FF; F=FF; x=--FxF++FxF++FxF--; 📐=60'
+  'FxF--FF--FF; F=FF; x=--FxF++FxF++FxF--; 📐=60; 🌈=1'
 ];
 
 var count = 0;
