@@ -30,9 +30,9 @@ var curves = [
   // 'x y x y Z y x y x; x=F F + y + F x - F r23.3;' +
     // 'y=c F + F r13.3; Z=c F c F c F c',
 
-  'F; F=F + + B F - F + F; B=+ F [F - F [- F + F]]',
+  'F; F=F + + B F - F + F; B=+ F [F - F [- F + F]]; 🌈=1',
 
-  'F; F=F[+ + F [- F]]F[-FF[F]]; 📐=12; 〰️=0.8; 🍥=0.6',
+  'F; F=F[+ + F [- F]]F[-FF[F]]; 📐=12; 〰️=0.8; 🍥=0.6; 🌈=1',
 
   'l; l=+rF-lFl-Fr+; r=-lF+rFr+Fl-; 📐=90',
 

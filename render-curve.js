@@ -154,6 +154,12 @@ function render(curve, settings, maxLength, width, height, ctx, draw, xOffset,
       updateBounds();
 
       if (draw && c.draw) {
+        _.each(settings, function (args, symbol) {
+          if (system.settings[symbol].beforeDraw) {
+            system.settings[symbol].beforeDraw(state, previousState, globals, ctx, args[0]);
+          }
+        });
+
         // TODO: apply command.args
         c.draw(state, previousState, globals, ctx, command.args[0]);
       }
