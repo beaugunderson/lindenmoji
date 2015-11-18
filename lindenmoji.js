@@ -12,21 +12,32 @@ _.mixin(Twit.prototype, botUtilities.twitMixins);
 
 var SCREEN_NAME = process.env.SCREEN_NAME;
 
+var TWEET_LENGTH = 140;
+var PHOTO_LENGTH = 24;
+
+var MAX_LENGTH = TWEET_LENGTH - PHOTO_LENGTH;
+
 program
   .command('tweet')
   .description('Generate and tweet an image')
   .option('-r, --random', 'only post a percentage of the time')
   .action(botUtilities.randomCommand(function () {
-    var curve = generateCurve();
+    var curve;
+    var tweet;
 
+    while (!tweet || tweet.length > MAX_LENGTH) {
+      curve = generateCurve();
+      tweet = curve.replace(/; /g, ';\n');
+    }
+
+    // TODO: make this an async while that checks metadata for a pleasing
+    // aspect ratio
     render(curve, 1024, 1024, false, function (err, buffer) {
       if (err || !buffer) {
         throw err;
       }
 
       var T = new Twit(botUtilities.getTwitterAuthFromEnv());
-
-      var tweet = curve.replace(/; /g, ';\n');
 
       if (_.percentChance(25)) {
         var bot = botUtilities.imageBot();
