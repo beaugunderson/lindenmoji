@@ -59,7 +59,7 @@ program
         console.log('TUWM OK');
       });
     });
-  }));
+  }, 96));
 
 program
   .command('respond')
