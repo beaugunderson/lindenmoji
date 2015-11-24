@@ -49,14 +49,14 @@ module.exports = function () {
   // remove control symbols from potential symbols
   symbols = _.difference(symbols, system.controlSymbols);
 
-  console.log('tags:', system.tags.join(', '));
+  // console.log('tags:', system.tags.join(', '));
 
-  _.each(system.symbolsByTag, function (s, tag) {
-    console.log('%s: %s', tag, consoleFormat(s.join('')));
-  });
+  // _.each(system.symbolsByTag, function (s, tag) {
+  //   console.log('%s: %s', tag, consoleFormat(s.join('')));
+  // });
 
-  console.log('available node symbols:', symbols.join(' '));
-  console.log('available control symbols:', consoleFormat(system.emojiSymbols.join('')));
+  // console.log('available node symbols:', symbols.join(' '));
+  // console.log('available control symbols:', consoleFormat(system.emojiSymbols.join('')));
 
   var chosenSymbols = [];
 
@@ -66,7 +66,7 @@ module.exports = function () {
                _.random(1, system.symbolsByTag[tag].length)));
   });
 
-  console.log('chosen symbols:', consoleFormat(chosenSymbols.join('')));
+  // console.log('chosen symbols:', consoleFormat(chosenSymbols.join('')));
 
   chosenSymbols = _.flatten(chosenSymbols.map(function (symbol) {
     // use multiple sets of arguments
@@ -85,7 +85,7 @@ module.exports = function () {
                _.random(1, system.symbolsByTag[tag].length)));
   });
 
-  console.log('chosen settings:', consoleFormat(chosenSettings.join('')));
+  // console.log('chosen settings:', consoleFormat(chosenSettings.join('')));
 
   chosenSettings = chosenSettings.map(function (symbol) {
     return symbol + '=' + getArgument(system.settings, symbol, true);
