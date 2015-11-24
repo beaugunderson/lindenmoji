@@ -5,12 +5,10 @@ var Canvas = require('canvas');
 var canvasUtilities = require('canvas-utilities/lib/utilities.js');
 var color = require('onecolor');
 var consoleFormat = require('./lib/console-format.js');
-var pegjs = require('pegjs-import');
+var parse = require('./lib/parse-curve.js');
 var random = require('random-seed');
 var system = require('./system.js');
 var _ = require('lodash');
-
-var parser = pegjs.buildParser('./parsers/curve.pegjs');
 
 var MAX_ITERATIONS = 1000;
 
@@ -215,14 +213,12 @@ function render(curve, settings, maxLength, width, height, ctx, draw, xOffset,
 }
 
 module.exports = function doCurve(curve, width, height, filename, cb) {
-  console.log('curve:', consoleFormat(curve));
-
   var canvas = new Canvas(width, height);
   var ctx = canvasUtilities.getContext(canvas);
 
   curve = curve.replace(/\s/g, '');
 
-  var parsed = parser.parse(curve);
+  var parsed = parse(curve);
   var settings = {};
 
   _.each(parsed.rules, function (rule, symbol) {

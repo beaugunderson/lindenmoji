@@ -1,5 +1,6 @@
 'use strict';
 
+var clean = require('./lib/clean-curve.js');
 var consoleFormat = require('./lib/console-format.js');
 var ruleSplit = require('./lib/rule-split.js');
 var split = require('./lib/unicode-split.js');
@@ -98,18 +99,18 @@ module.exports = function () {
 
   function randomSymbol() {
     return Math.random() > controlWeight ?
-      _.sample(nodeSymbols) :
+      _.sample(ruleSymbols) :
       _.sample(chosenSymbols);
   }
 
   var ruleCount = _.random(1, 7);
 
   // select some symbols to use as nodes
-  var nodeSymbols = _.take(symbols, ruleCount);
+  var ruleSymbols = _.take(symbols, ruleCount);
 
-  remainingCharacters -= (5 * nodeSymbols.length);
+  remainingCharacters -= (5 * ruleSymbols.length);
 
-  console.log('rule symbols:', nodeSymbols.join(' '));
+  console.log('rule symbols:', ruleSymbols.join(' '));
 
   // generate random start symbol (small)
   var initialCount = _.random(2, 10);
@@ -117,14 +118,14 @@ module.exports = function () {
   remainingCharacters -= initialCount;
 
   // start += _.times(initialCount, randomSymbol).join('');
-  start += _.sample(nodeSymbols, initialCount).join('');
+  start += _.sample(ruleSymbols, initialCount).join('');
 
   console.log('start:', start);
 
-  var avgLength = Math.floor(remainingCharacters / nodeSymbols.length);
+  var avgLength = Math.floor(remainingCharacters / ruleSymbols.length);
 
   // generate a rule for each symbol
-  for (var i = 0; i < nodeSymbols.length && remainingCharacters > 0; i++) {
+  for (var i = 0; i < ruleSymbols.length && remainingCharacters > 0; i++) {
     rule = '';
 
     // insert random node or control symbols
@@ -137,7 +138,7 @@ module.exports = function () {
 
     // insert push/pop symbols, which need to be matched
     if (ruleArray.length > 1 && bracketPairsToAdd > 0) {
-      console.log('%s rule: %s', nodeSymbols[i], consoleFormat(rule));
+      console.log('%s rule: %s', ruleSymbols[i], consoleFormat(rule));
 
       _.times(bracketPairsToAdd, function () {
         index = _.random(ruleArray.length - 1);
@@ -154,25 +155,35 @@ module.exports = function () {
 
     if (ruleArray.length) {
       rule = ruleArray.join('');
-      rules[nodeSymbols[i]] = rule;
+      rules[ruleSymbols[i]] = rule;
 
       remainingCharacters -= ruleArray.length;
 
-      console.log('%s rule: %s', nodeSymbols[i], consoleFormat(rule));
+      console.log('%s rule: %s', ruleSymbols[i], consoleFormat(rule));
     }
   }
 
-  rules = _.map(rules, function (r, symbol) {
+  var rulesString = _.map(rules, function (r, symbol) {
     return symbol + '=' + r;
   }).join('; ');
 
-  rules = rules.replace(/\[\]/g, '');
-
   var curve = [
     start,
-    rules,
+    rulesString,
     chosenSettings
-  ];
+  ].join('; ');
 
-  return curve.join('; ');
+  console.log('-clean: %s', consoleFormat(curve));
+
+  var oldCurve;
+
+  while (oldCurve !== curve) {
+    oldCurve = curve;
+
+    curve = clean(curve, ruleSymbols);
+
+    console.log('+clean: %s', consoleFormat(curve));
+  }
+
+  return curve;
 };
