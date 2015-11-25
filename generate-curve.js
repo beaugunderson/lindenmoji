@@ -173,17 +173,5 @@ module.exports = function () {
     chosenSettings
   ].join('; ');
 
-  console.log('-clean: %s', consoleFormat(curve));
-
-  var oldCurve;
-
-  while (oldCurve !== curve) {
-    oldCurve = curve;
-
-    curve = clean(curve, ruleSymbols);
-
-    console.log('+clean: %s', consoleFormat(curve));
-  }
-
-  return curve;
+  return clean(curve, ruleSymbols);
 };
