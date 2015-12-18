@@ -18,40 +18,52 @@ var PHOTO_LENGTH = 24;
 
 var MAX_LENGTH = TWEET_LENGTH - PHOTO_LENGTH;
 
-function goodCurve(cb) {
+function goodCurve() {
   var curve;
   var tweet;
-  var aspect;
+
+  while (!tweet || tweet.length > MAX_LENGTH) {
+    curve = generateCurve();
+    tweet = curve.replace(/; /g, ';\n');
+  }
+
+  return {curve: curve, tweet: tweet};
+}
+
+function goodSystem(cb) {
+  var meta = {};
+  var good;
   var last;
 
+  console.log('iterating to find a good system...');
+
   async.whilst(function () {
-    return !aspect || aspect >= 10;
+    return !meta.aspect ||
+           meta.aspect >= 10 ||
+           meta.points.total <= 5 ||
+           meta.points.x <= 3 ||
+           meta.points.y <= 3;
   }, function (cbWhilst) {
-    console.log('looking for a good aspect...');
+    good = goodCurve();
 
-    tweet = null;
-
-    while (!tweet || tweet.length > MAX_LENGTH) {
-      curve = generateCurve();
-      tweet = curve.replace(/; /g, ';\n');
-    }
-
-    render(curve, 1024, 1024, false, function (err, buffer, meta) {
+    render(good.curve, 1024, 1024, false, function (err, buffer, renderMeta) {
       if (err || !buffer) {
         cbWhilst(err);
       }
 
-      aspect = Math.max(meta.width, meta.height) /
-               Math.min(meta.width, meta.height);
+      meta = renderMeta;
 
-      console.log('aspect ratio: %d', aspect);
+      meta.aspect = Math.max(meta.width, meta.height) /
+                    Math.min(meta.width, meta.height);
+
+      console.log('metadata: %j', meta);
 
       last = buffer;
 
       cbWhilst();
     });
   }, function (err) {
-    cb(err, last, tweet);
+    cb(err, last, good.tweet);
   });
 }
 
@@ -60,7 +72,7 @@ program
   .description('Generate and tweet an image')
   .option('-r, --random', 'only post a percentage of the time')
   .action(botUtilities.randomCommand(function () {
-    goodCurve(function (err, buffer, tweet) {
+    goodSystem(function (err, buffer, tweet) {
       if (err) {
         throw err;
       }

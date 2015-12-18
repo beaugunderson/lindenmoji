@@ -4,7 +4,7 @@ var fs = require('fs');
 var Canvas = require('canvas');
 var canvasUtilities = require('canvas-utilities/lib/utilities.js');
 var color = require('onecolor');
-var consoleFormat = require('./lib/console-format.js');
+// var consoleFormat = require('./lib/console-format.js');
 var parse = require('./lib/parse-curve.js');
 var random = require('random-seed');
 var system = require('./system.js');
@@ -80,6 +80,13 @@ function render(curve, settings, maxLength, width, height, ctx, draw, xOffset,
     seed: seed
   };
 
+  // store every point drawn
+  var points = {
+    x: {},
+    y: {},
+    total: {}
+  };
+
   var globals = {
     i: 0,
 
@@ -147,6 +154,10 @@ function render(curve, settings, maxLength, width, height, ctx, draw, xOffset,
       // TODO: apply command.args
       if (c.apply) {
         c.apply(state, previousState, globals, command.args[0]);
+
+        points.x[`${state.x}`] = true;
+        points.y[`${state.y}`] = true;
+        points.total[`${state.x}x${state.y}`] = true;
       }
 
       updateBounds();
@@ -208,6 +219,12 @@ function render(curve, settings, maxLength, width, height, ctx, draw, xOffset,
 
     ctx.restore();
   }
+
+  globals.points = {
+    x: Object.keys(points.x).length,
+    y: Object.keys(points.y).length,
+    total: Object.keys(points.total).length
+  };
 
   return globals;
 }
@@ -298,10 +315,18 @@ module.exports = function doCurve(curve, width, height, filename, cb) {
       return cb(err);
     }
 
+    var stats = {
+      width: renderWidth,
+      height: renderHeight,
+      points: result.points
+    };
+
     if (filename) {
-      return fs.writeFile(filename, buffer, cb);
+      return fs.writeFile(filename, buffer, function (writeErr) {
+        cb(writeErr, stats);
+      });
     }
 
-    cb(err, buffer, {width: renderWidth, height: renderHeight});
+    cb(err, buffer, stats);
   });
 };
