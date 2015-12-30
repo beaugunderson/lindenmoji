@@ -8,8 +8,7 @@
     "bot-utilities": "^2.4.0",
     "canvas": "^1.3.5",
     "canvas-utilities": "^2.1.0",
-    "d3": "^3.5.12",
-    "d3-plugins-dist": "^3.1.4",
+    "d3-scale": "^0.4.0",
     "lodash": "^3.10.1",
     "onecolor": "^2.5.0",
     "pegjs": "^0.9.0",
@@ -28,5 +27,17 @@
     "test": "mocha -R spec"
   },
   "author": "Beau Gunderson <beau@beaugunderson.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beaugunderson/lindenmoji.git"
+  },
+  "bugs": {
+    "url": "https://github.com/beaugunderson/lindenmoji/issues"
+  },
+  "homepage": "https://github.com/beaugunderson/lindenmoji#readme"
 }

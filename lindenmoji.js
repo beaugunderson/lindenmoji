@@ -57,6 +57,7 @@ function goodSystem(cb) {
                     Math.min(meta.width, meta.height);
 
       console.log('metadata: %j', meta);
+      console.log();
 
       last = buffer;
 
