@@ -48,7 +48,7 @@ function goodSystem(cb) {
 
     render(good.curve, 1024, 1024, false, function (err, buffer, renderMeta) {
       if (err || !buffer) {
-        cbWhilst(err);
+        return cbWhilst(err);
       }
 
       meta = renderMeta;
