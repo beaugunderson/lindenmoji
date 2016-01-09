@@ -6,7 +6,7 @@
   "dependencies": {
     "async": "^1.5.2",
     "bot-utilities": "^2.4.0",
-    "elephantine": "^2.0.0",
+    "elephantine": "^2.0.1",
     "lodash": "^3.10.1",
     "twit": "^2.1.1"
   },
