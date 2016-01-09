@@ -2,9 +2,9 @@
 
 var async = require('async');
 var botUtilities = require('bot-utilities');
-var generateCurve = require('./generate-curve.js');
+var generateCurve = require('elephantine').generate;
 var program = require('commander');
-var render = require('./render-curve.js');
+var render = require('elephantine').render;
 var Twit = require('twit');
 var _ = require('lodash');
 
