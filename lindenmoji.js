@@ -4,8 +4,10 @@ var async = require('async');
 var botUtilities = require('bot-utilities');
 var generateCurve = require('elephantine').generate;
 var program = require('commander');
-var render = require('elephantine').render;
+var write = require('elephantine').write;
 var Twit = require('twit');
+var URI = require('urijs');
+require('urijs/src/URI.fragmentQuery.js');
 var _ = require('lodash');
 
 _.mixin(botUtilities.lodashMixins);
@@ -24,7 +26,7 @@ function goodCurve() {
 
   while (!tweet || tweet.length > MAX_LENGTH) {
     curve = generateCurve();
-    tweet = curve.replace(/; /g, ';\n');
+    tweet = curve.replace(/; /g, '\n');
   }
 
   return {curve: curve, tweet: tweet};
@@ -46,7 +48,7 @@ function goodSystem(cb) {
   }, function (cbWhilst) {
     good = goodCurve();
 
-    render(good.curve, 1024, 1024, false, function (err, buffer, renderMeta) {
+    write(good.curve, 1024, 1024, false, function (err, buffer, renderMeta) {
       if (err || !buffer) {
         return cbWhilst(err);
       }
@@ -90,6 +92,11 @@ program
         }
       }
 
+      var uri = URI('https://beaugunderson.com/lindenmoji')
+        .fragment({curve: tweet}).toString();
+
+      console.log('uri', uri);
+
       tweet = {status: tweet};
 
       T.updateWithMedia(tweet, buffer, function (updateError, response) {
@@ -122,7 +129,7 @@ program
 
       console.log('rendering curve for', tweet.user.screen_name, curve);
 
-      render(curve, 1024, 1024, false, function (err, buffer) {
+      write(curve, 1024, 1024, false, function (err, buffer) {
         if (err || !buffer) {
           throw err;
         }
