@@ -17,8 +17,9 @@ var SCREEN_NAME = process.env.SCREEN_NAME;
 
 var TWEET_LENGTH = 140;
 var PHOTO_LENGTH = 24;
+var URL_LENGTH  = 24;
 
-var MAX_LENGTH = TWEET_LENGTH - PHOTO_LENGTH;
+var MAX_LENGTH = TWEET_LENGTH - PHOTO_LENGTH - URL_LENGTH;
 
 function goodCurve() {
   var curve;
@@ -80,6 +81,7 @@ program
         throw err;
       }
 
+      var curve = tweet;
       var T = new Twit(botUtilities.getTwitterAuthFromEnv());
 
       if (_.percentChance(25)) {
@@ -93,11 +95,9 @@ program
       }
 
       var uri = URI('https://beaugunderson.com/lindenmoji')
-        .fragment({curve: tweet}).toString();
+        .fragment({curve: curve}).toString();
 
-      console.log('uri', uri);
-
-      tweet = {status: tweet};
+      tweet = {status: tweet + '\n' + uri};
 
       T.updateWithMedia(tweet, buffer, function (updateError, response) {
         if (updateError) {
