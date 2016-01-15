@@ -125,7 +125,8 @@ program
         return;
       }
 
-      var curve = tweet.text.replace(new RegExp('.*@' + SCREEN_NAME + '\s*'), '');
+      var curve = tweet.text
+        .replace(new RegExp('.*@' + SCREEN_NAME + '\\s*', 'i'), '');
 
       console.log('rendering curve for', tweet.user.screen_name, curve);
 
