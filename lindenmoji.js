@@ -3,11 +3,12 @@
 var async = require('async');
 var botUtilities = require('bot-utilities');
 var generateCurve = require('elephantine').generate;
+var ImageInterestingness = require('image-interestingness');
 var program = require('commander');
-var write = require('elephantine').write;
 var Twit = require('twit');
 var URI = require('urijs');
 require('urijs/src/URI.fragmentQuery.js');
+var write = require('elephantine').write;
 var _ = require('lodash');
 
 _.mixin(botUtilities.lodashMixins);
@@ -17,7 +18,7 @@ var SCREEN_NAME = process.env.SCREEN_NAME;
 
 var TWEET_LENGTH = 140;
 var PHOTO_LENGTH = 24;
-var URL_LENGTH  = 24;
+var URL_LENGTH = 24;
 
 var MAX_LENGTH = TWEET_LENGTH - PHOTO_LENGTH - URL_LENGTH;
 
@@ -45,27 +46,34 @@ function goodSystem(cb) {
            meta.aspect >= 10 ||
            meta.points.total <= 5 ||
            meta.points.x <= 3 ||
-           meta.points.y <= 3;
+           meta.points.y <= 3 ||
+           !meta.score ||
+           meta.score.total <= 0;
   }, function (cbWhilst) {
     good = goodCurve();
 
-    write(good.curve, 1024, 1024, false, function (err, buffer, renderMeta) {
-      if (err || !buffer) {
-        return cbWhilst(err);
-      }
+    write(good.curve, 1024, 1024, false,
+      function (err, buffer, canvas, renderMeta) {
+        if (err || !buffer) {
+          return cbWhilst(err);
+        }
 
-      meta = renderMeta;
+        var interestingness = new ImageInterestingness();
 
-      meta.aspect = Math.max(meta.width, meta.height) /
-                    Math.min(meta.width, meta.height);
+        meta = renderMeta;
 
-      console.log('metadata: %j', meta);
-      console.log();
+        meta.score = interestingness.analyze(canvas);
 
-      last = buffer;
+        meta.aspect = Math.max(meta.width, meta.height) /
+                      Math.min(meta.width, meta.height);
 
-      cbWhilst();
-    });
+        console.log('metadata: %j', meta);
+        console.log();
+
+        last = buffer;
+
+        cbWhilst();
+      });
   }, function (err) {
     cb(err, last, good.tweet);
   });
