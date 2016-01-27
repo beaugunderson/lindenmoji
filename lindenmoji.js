@@ -105,7 +105,7 @@ program
         }
       }
 
-      var uri = URI('https://beaugunderson.com/lindenmoji')
+      var uri = URI('https://lindenmayer.club/lindenmoji/')
         .fragment({curve: curve}).toString();
 
       tweet = {status: tweet + '\n' + uri};
