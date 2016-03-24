@@ -2,6 +2,7 @@
 
 var async = require('async');
 var botUtilities = require('bot-utilities');
+var cheat = require('cheat-canvas');
 var generateCurve = require('elephantine').generate;
 var ImageInterestingness = require('image-interestingness');
 var program = require('commander');
@@ -88,6 +89,8 @@ program
       if (err) {
         throw err;
       }
+
+      buffer = cheat(buffer);
 
       var curve = tweet;
       var T = new Twit(botUtilities.getTwitterAuthFromEnv());

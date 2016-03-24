@@ -6,6 +6,7 @@
   "dependencies": {
     "async": "^1.5.2",
     "bot-utilities": "^2.5.0",
+    "cheat-canvas": "^1.0.0",
     "elephantine": "^4.0.0",
     "image-interestingness": "^1.0.0",
     "lodash": "^4.0.0",
