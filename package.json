@@ -4,14 +4,14 @@
   "description": "a Twitter bot that tweets images of Lindenmeyer systems",
   "main": "lindenmoji.js",
   "dependencies": {
-    "async": "^2.0.0-rc.2",
+    "async": "^2.1.2",
     "bot-utilities": "^2.5.0",
     "cheat-canvas": "^1.0.0",
     "elephantine": "^4.0.0",
     "image-interestingness": "^1.0.0",
-    "lodash": "^4.6.1",
-    "twit": "^2.2.3",
-    "urijs": "^1.17.1"
+    "lodash": "^4.16.4",
+    "twit": "^2.2.5",
+    "urijs": "^1.18.2"
   },
   "author": "Beau Gunderson <beau@beaugunderson.com>",
   "license": "MIT",
