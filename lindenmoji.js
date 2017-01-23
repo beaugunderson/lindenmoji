@@ -146,6 +146,8 @@ program
           throw err;
         }
 
+        buffer = cheat(buffer);
+
         var reply = {
           in_reply_to_status_id: tweet.id_str,
           status: '@' + tweet.user.screen_name
