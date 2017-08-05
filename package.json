@@ -7,6 +7,7 @@
     "async": "^2.1.4",
     "bot-utilities": "^2.5.0",
     "cheat-canvas": "^1.0.0",
+    "commander": "^2.11.0",
     "elephantine": "^4.2.0",
     "image-interestingness": "^1.0.0",
     "lodash": "^4.17.4",
